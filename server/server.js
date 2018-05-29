@@ -26,3 +26,5 @@ app.post('/todos', async (req, res) => {
 app.listen(3000, () => {
   console.log('Started on por 3000');
 });
+
+module.exports = { app };
