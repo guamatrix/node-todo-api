@@ -12,7 +12,9 @@ app.use(bodyParser.json());
 app.post('/todos', async (req, res) => {
   try {
     const todo = new Todo({
-      text: req.body.text
+      text: req.body.text,
+      completed: req.body.completed || undefined,
+      completedAt: req.body.completedAt || undefined
     });
   
     const result = await todo.save();
@@ -20,6 +22,16 @@ app.post('/todos', async (req, res) => {
   } catch (error) {
     const errorResponse = error.errors ? { error:  error.message } : error.stack;
     res.status(400).send(errorResponse);
+  }
+});
+
+app.get('/todos', async (req, res) => {
+  try {
+    const todos = await Todo.find();
+    res.status(200).send({ todos });
+  } catch (error) {
+    const errorResponse = error.errors ? { error:  error.message } : error.stack;
+    res.status(400).send(errorResponse);    
   }
 });
 
