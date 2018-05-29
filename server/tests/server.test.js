@@ -5,7 +5,11 @@ const { ObjectID } = require('mongodb');
 const { app } = require('../server');
 const { Todo } = require('../models/todo');
 
-const todosDummy = [{ text: 'First to do', _id: new ObjectID() }, { text: 'First to do 1', _id: new ObjectID() }, { text: 'First to do 2', _id: new ObjectID() }];
+const todosDummy = [
+  { text: 'First to do', _id: new ObjectID(), completed: false },
+  { text: 'First to do 1', _id: new ObjectID(), completed: false },
+  { text: 'First to do 2', _id: new ObjectID(), completed: false }
+];
 
 beforeEach(done => {
   Todo.remove({})
@@ -86,7 +90,7 @@ describe('App', () => {
         .end(done);
     });
 
-    it('should return 404 with invalid id', (done) => {
+    it('should return 404 with invalid id', done => {
       const id = '1asdsa45';
       request(app)
         .get(`/todos/${id}`)
@@ -94,7 +98,7 @@ describe('App', () => {
         .end(done);
     });
 
-    it('should return 404 if id not exist', (done) => {
+    it('should return 404 if id not exist', done => {
       const id = new ObjectID();
       request(app)
         .get(`/todos/${id}`)
@@ -126,7 +130,7 @@ describe('App', () => {
         });
     });
 
-    it('should return 404 with invalid id', (done) => {
+    it('should return 404 with invalid id', done => {
       const id = '1asdsa45';
       request(app)
         .delete(`/todos/${id}`)
@@ -134,7 +138,7 @@ describe('App', () => {
         .end(done);
     });
 
-    it('should return 404 if id not exist', (done) => {
+    it('should return 404 if id not exist', done => {
       const id = new ObjectID();
       request(app)
         .delete(`/todos/${id}`)
@@ -143,4 +147,73 @@ describe('App', () => {
     });
   });
 
+  describe('PATCH /todo/:id', () => {
+    it('should update todo completed', done => {
+      const id = todosDummy[1]._id.toHexString();
+      const body = { text: 'something', completed: true };
+      request(app)
+        .patch(`/todos/${id}`)
+        .send(body)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.todo.text).toBe(body.text);
+          expect(res.body.todo.completed).toBe(true);
+          expect(typeof res.body.todo.completedAt).toBe('number');
+        })
+        .end(async (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          try {
+            const todoUpdated = await Todo.findById(id);  
+            expect(todoUpdated.text).toBe(body.text);
+            done();
+          } catch (error) {
+            done(error)
+          }
+        });
+
+    });
+
+    it('should update todo to not completed', done => {
+      const id = todosDummy[0]._id.toHexString();
+      const body = { completed: false };
+      request(app)
+        .patch(`/todos/${id}`)
+        .send(body)
+        .expect(200)
+        .expect(res => {
+          expect(res.body.todo.completed).toBe(body.completed);
+          expect(res.body.todo.completedAt).toBe(null);
+        })
+        .end(async (err, res) => {
+          if (err) {
+            done(err);
+          }
+          try {
+            const todoUpdated = await Todo.findById(id);
+            expect(todoUpdated.completedAt).toBe(null);
+            done();
+          } catch (error) {
+            done(error);
+          }
+        })
+    });
+
+    it('should return 404 when update with invalid id', done => {
+      const id = '1asdsa45';
+      request(app)
+        .patch(`/todos/${id}`)
+        .expect(404)
+        .end(done);      
+    });
+
+    it('should return 404 when try to update todo that not exist', done => {
+      const id = new ObjectID();
+      request(app)
+        .patch(`/todos/${id}`)
+        .expect(404)
+        .end(done);      
+    });
+  });
 });
