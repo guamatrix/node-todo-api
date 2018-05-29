@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
+const _ = require('lodash');
 
 const { mongoose } = require('./db/mongoose');
 const { Todo } = require('./models/todo');
@@ -73,6 +74,32 @@ app.delete('/todos/:id', async (req, res) => {
   } catch (error) {
     const errorResponse = error.errors ? { error:  error.message } : error.stack;
     res.status(400).send(errorResponse);        
+  }
+});
+
+app.patch('/todos/:id', async (req, res) => {
+  const { id } = req.params;
+
+  if(!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  const body = _.pick(req.body, ['text', 'completed']);
+  if(_.isBoolean(body.completed) && body.completed) {
+    body['completedAt'] = new Date().getTime();
+  } else {
+    body.completed = false;
+    body['completedAt'] = null;
+  }
+  try {
+    const todoUpdated = await Todo.findByIdAndUpdate(id, { $set: body }, { new: true });
+    if (!todoUpdated) {
+      return res.status(404).send();
+    }
+    res.status(200).send({ todo: todoUpdated });
+  } catch (error) {
+    const errorResponse = error.errors ? { error:  error.message } : error.stack;
+    res.status(400).send(errorResponse);            
   }
 });
 

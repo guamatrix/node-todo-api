@@ -29,7 +29,7 @@ describe('App', () => {
         })
         .end(async (err, res) => {
           if (err) {
-            done(err);
+            return done(err);
           }
           try {
             const todos = await Todo.find({ text });
@@ -105,20 +105,31 @@ describe('App', () => {
 
   describe('DELETE /todos/id', () => {
     it('should return removed todo', done => {
-      const id = todosDummy[1]._id.toHexString();
+      const id = todosDummy[0]._id.toHexString();
       request(app)
         .delete(`/todos/${id}`)
         .expect(200)
         .expect(res => {
           expect(res.body.todo._id).toBe(id);
         })
-        .end(done);
+        .end(async (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          try {
+            const todos = await Todo.findById(id);
+            expect(todos).toBeFalsy();
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });
     });
 
     it('should return 404 with invalid id', (done) => {
       const id = '1asdsa45';
       request(app)
-        .get(`/todos/${id}`)
+        .delete(`/todos/${id}`)
         .expect(404)
         .end(done);
     });
@@ -126,7 +137,7 @@ describe('App', () => {
     it('should return 404 if id not exist', (done) => {
       const id = new ObjectID();
       request(app)
-        .get(`/todos/${id}`)
+        .delete(`/todos/${id}`)
         .expect(404)
         .end(done);
     });
