@@ -102,4 +102,34 @@ describe('App', () => {
         .end(done);
     });
   });
+
+  describe('DELETE /todos/id', () => {
+    it('should return removed todo', done => {
+      const id = todosDummy[1]._id.toHexString();
+      request(app)
+        .delete(`/todos/${id}`)
+        .expect(200)
+        .expect(res => {
+          expect(res.body.todo._id).toBe(id);
+        })
+        .end(done);
+    });
+
+    it('should return 404 with invalid id', (done) => {
+      const id = '1asdsa45';
+      request(app)
+        .get(`/todos/${id}`)
+        .expect(404)
+        .end(done);
+    });
+
+    it('should return 404 if id not exist', (done) => {
+      const id = new ObjectID();
+      request(app)
+        .get(`/todos/${id}`)
+        .expect(404)
+        .end(done);
+    });
+  });
+
 });
