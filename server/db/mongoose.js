@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
 
+const keys = require('../config/keys');
+
 const { Schema } = mongoose;
 
-const URL_DB = process.env.MONGODB_URI;
+
+const URL_DB = keys.MONGODB_URI;
 
 mongoose.connect(URL_DB).then(resp => {
   // console.log('Connectd db');

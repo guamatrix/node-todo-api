@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const { Schema } = mongoose;
 
@@ -9,7 +10,12 @@ const User = mongoose.model(
       type: String,
       required: true,
       trim: true,
-      minlength: 1
+      minlength: 1,
+      unique: true,
+      validate: {
+        validator: validator.isEmail,
+        message: '{VALUE} is not a valid email'
+      }
     }
   })
 );
