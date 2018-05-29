@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
-const URL_DB = process.env.NODE_ENV === 'production' ? process.env.MONGODB_URI : 'mongodb://localhost:27017/TodoApp';
+const URL_DB = process.env.MONGODB_URI;
 
 mongoose.connect(URL_DB).then(resp => {
   // console.log('Connectd db');
