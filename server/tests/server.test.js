@@ -309,4 +309,32 @@ describe('App', () => {
       });
     });
   });
+
+  describe('POST /users/login', () => {
+    it('should login user and return token', done => {
+      const { email, password } = usersDummy[0];
+      request(app)
+        .post('/users/login')
+        .send({ email, password })
+        .expect(200)
+        .expect((res) => {
+          expect(res.headers['x-auth']).toBeTruthy();
+          expect(res.body.user.email).toBe(email);
+        })
+        .end(done);
+    });
+
+    it('should reject invalid login', done => {
+      const email = 'cada@cadacom';
+      const password = 'casapass';
+      request(app)
+      .post('/users/login')
+      .send({ email, password })
+      .expect(400)
+      .expect((res) => {
+        expect(res.body['errors']).toBeTruthy();
+      })
+      .end(done);
+    });
+  });
 });
