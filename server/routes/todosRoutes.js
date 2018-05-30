@@ -2,6 +2,7 @@ const { ObjectID } = require('mongodb');
 const _ = require('lodash');
 
 const { Todo } = require('../models/todo');
+const Errors = require('../models/errors');
 
 
 module.exports = app => {
@@ -16,8 +17,7 @@ module.exports = app => {
       const result = await todo.save();
       res.status(200).send(result);
     } catch (error) {
-      const errorResponse = error.errors ? { error:  error.message } : error.stack;
-      res.status(400).send(errorResponse);
+      res.status(400).send(new Error(error));
     }
   });
 
@@ -26,8 +26,7 @@ module.exports = app => {
       const todos = await Todo.find();
       res.status(200).send({ todos });
     } catch (error) {
-      const errorResponse = error.errors ? { error:  error.message } : error.stack;
-      res.status(400).send(errorResponse);    
+      res.status(400).send(new Error(error));
     }
   });
 
@@ -45,8 +44,7 @@ module.exports = app => {
       }
       res.status(404).send({});
     } catch (error) {
-      const errorResponse = error.errors ? { error:  error.message } : error.stack;
-      res.status(400).send(errorResponse);    
+      res.status(400).send(new Error(error));
     }
   });
 
@@ -64,8 +62,7 @@ module.exports = app => {
       }
       res.status(404).send();
     } catch (error) {
-      const errorResponse = error.errors ? { error:  error.message } : error.stack;
-      res.status(400).send(errorResponse);        
+      res.status(400).send(new Error(error));
     }
   });
 
@@ -90,8 +87,7 @@ module.exports = app => {
       }
       res.status(200).send({ todo: todoUpdated });
     } catch (error) {
-      const errorResponse = error.errors ? { error:  error.message } : error.stack;
-      res.status(400).send(errorResponse);            
+      res.status(400).send(new Error(error));
     }
   });
 }

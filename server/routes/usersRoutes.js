@@ -1,6 +1,7 @@
 const _ = require('lodash');
 
 const { User } = require('../models/user');
+const Errors = require('../models/errors');
 
 module.exports = app => {
   app.post('/users', async (req, res) => {
@@ -8,13 +9,13 @@ module.exports = app => {
     const user = new User(body);
     try {
       const response = await user.save();
-      if (response) {
-        return res.status(200).send({ user: response });
+      const token = await user.generateAuthToken();
+      if (response && token) {
+        return res.status(200).header('x-auth', token).send({ user: response });
       }
-      res.status(400).send({ error: response });
+      res.status(400).send(new Errors(response));
     } catch (error) {
-      const errorResponse = error.message ? { error:  error.message } : error.stack;
-      res.status(400).send(errorResponse);    
+      res.status(403).send(new Errors(error));    
     }
   });
 
