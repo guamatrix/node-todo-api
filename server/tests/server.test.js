@@ -4,20 +4,12 @@ const { ObjectID } = require('mongodb');
 
 const { app } = require('../server');
 const { Todo } = require('../models/todo');
+const { User } = require('../models/user');
+const { todosDummy, populateTodos, usersDummy, populateUser } = require('./seed/seed');
 
-const todosDummy = [
-  { text: 'First to do', _id: new ObjectID(), completed: false },
-  { text: 'First to do 1', _id: new ObjectID(), completed: false },
-  { text: 'First to do 2', _id: new ObjectID(), completed: false }
-];
 
-beforeEach(done => {
-  Todo.remove({})
-    .then(() => {
-      return Todo.insertMany(todosDummy);
-    })
-    .then(() => done());
-});
+beforeEach(populateTodos);
+beforeEach(populateUser);
 
 describe('App', () => {
   describe('POST /todos', () => {
@@ -214,6 +206,107 @@ describe('App', () => {
         .patch(`/todos/${id}`)
         .expect(404)
         .end(done);      
+    });
+  });
+
+  describe('GET /users/me', () => {
+    it('should return user if authenticated', (done) => {
+      request(app)
+      .get('/users/me')
+      .set('x-auth', usersDummy[0].tokens[0].token)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body._id).toBe(usersDummy[0]._id.toHexString());
+        expect(res.body.email).toBe(usersDummy[0].email);
+      })
+      .end(done);
+    });
+
+    it('should return 401 if not authenticated', (done) => {
+      request(app)
+      .get('/users/me')
+      .expect(401)
+      .expect((res) => {
+        expect(res.body['errors']).toBeTruthy();
+      })
+      .end(done);
+    });
+  });
+
+  describe('POST /users', () => {
+    it('should create a user', done => {
+      const email = 'prueba@prueba.com';
+      const password = '123456789';
+      request(app)
+      .post('/users')
+      .send({ email, password })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.user.email).toBe(email);
+        expect(res.headers['x-auth']).toBeTruthy();
+        expect(res.body.user._id).toBeTruthy();
+      })
+      .end(async (err) => {
+        if (err) {
+          return done(err);
+        }
+        try {
+          const user = await User.findOne({ email });
+          expect(user.email).toBe(email);  
+          expect(user.password).not.toBe(password);
+          done();
+        } catch (error) {
+          done(error);
+        }
+      })
+    });
+
+    it('should return validation error if request invalid', done => {
+      const email = 'bad email';
+      const password = '123';
+      request(app)
+      .post('/users')
+      .send({ email, password })
+      .expect(400)
+      .expect((res) => {
+        expect(res.body['errors']).toBeTruthy();
+      })
+      .end(async (err) => {
+        if (err) {
+          return done(err);
+        }
+        try {
+          const user =  await User.findOne({ email });
+          expect(user).toBe(null);
+          done();
+        } catch (error) {
+          done(error)
+        }
+      });
+    });
+
+    it('sould not create user if email in use', done => {
+      const email = usersDummy[0].email;
+      const password = '123456';
+      request(app)
+      .post('/users')
+      .send({ email, password })
+      .expect(400)
+      .expect((res) => {
+        expect(res.body['errors']).toBeTruthy();
+      })
+      .end(async (err) => {
+        if (err) {
+          return done(err);
+        }
+        try {
+          const user = await User.find({ email });
+          expect(user.length).toBe(1);
+          done();
+        } catch (error) {
+          done(error);
+        }
+      });
     });
   });
 });
