@@ -3,6 +3,7 @@ const _ = require('lodash');
 
 const { Todo } = require('../models/todo');
 const Errors = require('../models/errors');
+const { objectIDverify } = require('../middleware/objectID');
 
 
 module.exports = app => {
@@ -30,12 +31,8 @@ module.exports = app => {
     }
   });
 
-  app.get('/todos/:id', async (req, res) => {
+  app.get('/todos/:id', objectIDverify, async (req, res) => {
     const { id } = req.params;
-
-    if (!ObjectID.isValid(id)) {
-      return res.status(404).send();
-    }
 
     try {
       const todo = await Todo.findById(id);
@@ -48,12 +45,8 @@ module.exports = app => {
     }
   });
 
-  app.delete('/todos/:id', async (req, res) => {
+  app.delete('/todos/:id', objectIDverify, async (req, res) => {
     const { id } = req.params;
-
-    if(!ObjectID.isValid(id)) {
-      return res.status(404).send();
-    }
 
     try {
       const todoRemoved = await Todo.findByIdAndRemove(id);
@@ -66,12 +59,8 @@ module.exports = app => {
     }
   });
 
-  app.patch('/todos/:id', async (req, res) => {
+  app.patch('/todos/:id', objectIDverify, async (req, res) => {
     const { id } = req.params;
-
-    if(!ObjectID.isValid(id)) {
-      return res.status(404).send();
-    }
 
     const body = _.pick(req.body, ['text', 'completed']);
     if(_.isBoolean(body.completed) && body.completed) {

@@ -2,6 +2,7 @@ const _ = require('lodash');
 
 const { User } = require('../models/user');
 const Errors = require('../models/errors');
+const { authenticated } = require('../middleware/authenticated');
 
 module.exports = app => {
   app.post('/users', async (req, res) => {
@@ -19,5 +20,7 @@ module.exports = app => {
     }
   });
 
-  
+  app.get('/users/me', authenticated, (req, res) => {
+    res.status(200).send(req.user);
+  });
 }
