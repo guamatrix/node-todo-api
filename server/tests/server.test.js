@@ -312,7 +312,7 @@ describe('App', () => {
 
   describe('POST /users/login', () => {
     it('should login user and return token', done => {
-      const { email, password } = usersDummy[0];
+      const { email, password } = usersDummy[1];
       request(app)
         .post('/users/login')
         .send({ email, password })
@@ -321,12 +321,24 @@ describe('App', () => {
           expect(res.headers['x-auth']).toBeTruthy();
           expect(res.body.user.email).toBe(email);
         })
-        .end(done);
+        .end(async (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          try {
+            const user = await User.findById(usersDummy[1]._id);
+            // @ts-ignore
+            expect(user.tokens[0]).toHaveProperty(['token'], res.headers['x-auth']);
+            done()
+          } catch (error) {
+            done(error);
+          }
+        });
     });
 
     it('should reject invalid login', done => {
-      const email = 'cada@cadacom';
-      const password = 'casapass';
+      const email = 'cada@cada.com';
+      const password = 'casapasdfgf';
       request(app)
       .post('/users/login')
       .send({ email, password })
@@ -334,7 +346,19 @@ describe('App', () => {
       .expect((res) => {
         expect(res.body['errors']).toBeTruthy();
       })
-      .end(done);
+      .end(async (err, res) => {
+        if (err) {
+          return done(err);
+        }
+        try {
+          const user = await User.findById(usersDummy[1]._id);
+          // @ts-ignore
+          expect(user.tokens.length).toBe(0);
+          done()        
+        } catch (error) {
+          done(error);
+        }
+      });
     });
   });
 });
