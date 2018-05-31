@@ -7,9 +7,9 @@ const { User } = require('../../models/user');
 const userIDOne = new ObjectID();
 const userIDTwo = new ObjectID();
 const todosDummy = [
-  { text: 'First to do', _id: new ObjectID(), completed: false },
-  { text: 'First to do 1', _id: new ObjectID(), completed: false },
-  { text: 'First to do 2', _id: new ObjectID(), completed: false }
+  { text: 'First to do', _id: new ObjectID(), completed: false, _creator: userIDOne },
+  { text: 'First to do 1', _id: new ObjectID(), completed: false, _creator: userIDOne },
+  { text: 'First to do 2', _id: new ObjectID(), completed: false, _creator: userIDTwo }
 ];
 
 const usersDummy = [

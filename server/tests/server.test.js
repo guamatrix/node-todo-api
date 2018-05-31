@@ -361,4 +361,40 @@ describe('App', () => {
       });
     });
   });
+
+  describe('DELETE /users/me/token', () => {
+    it('should delete token', done => {
+      request(app)
+      .delete('/users/me/token')
+      .set('x-auth', usersDummy[0].tokens[0].token)
+      .expect(200)
+      .expect(res => {
+        expect(res).toBe(null);
+        expect(res.headers['x-auth']).toBeFalsy();
+      })
+      .end(async (err, res) => {
+        if (err) {
+          return done(err);
+        }
+        try {
+          const user = await User.findOne({
+            tokens: { token: usersDummy[0].tokens[0].token}
+          });
+          expect(user.length).toBe(0);
+          done();
+        } catch (error) {
+          done(error);
+        }
+      })
+    });
+
+    it('should return 400 deleting with invalid token', done => {
+      const tokenDummy = 'nsdd6sbsdjsdodody';
+      request(app)
+      .delete('/users/me/token')
+      .set('x-auth', tokenDummy)
+      .expect(400)
+      .end(done);
+    });
+  });
 });

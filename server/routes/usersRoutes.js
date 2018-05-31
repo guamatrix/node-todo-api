@@ -39,4 +39,13 @@ module.exports = app => {
       res.status(400).send(new Errors(error));
     }
   });
+
+  app.delete('/users/me/token', authenticated, async (req, res) => {
+    try {
+      const resp = await req.remove.token(req.token);
+      res.status(200).send();
+    } catch (error) {
+      res.status(400).send(new Errors(error));
+    }
+  });
 }
