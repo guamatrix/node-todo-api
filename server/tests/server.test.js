@@ -63,7 +63,7 @@ describe('App', () => {
       request(app)
         .post('/todos')
         .send({ text: 'test' })
-        .expect(400)
+        .expect(401)
         .end(done);
     });    
   });
@@ -75,7 +75,7 @@ describe('App', () => {
         .set('x-auth', usersDummy[0].tokens[0].token)        
         .expect(200)
         .expect(res => {
-          expect(res.body.todos.length).toBe(3);
+          expect(res.body.todos.length).toBe(2);
         })
         .end(done);
     });
@@ -83,7 +83,7 @@ describe('App', () => {
     it('should fail when not set header token', done => {
       request(app)
         .get('/todos')
-        .expect(400)
+        .expect(401)
         .end(done);
     });
   });
@@ -123,7 +123,7 @@ describe('App', () => {
       const id = todosDummy[0]._id;
       request(app)
         .get(`/todos/${id}`)
-        .expect(404)
+        .expect(401)
         .end(done);
     });
   });
@@ -174,7 +174,7 @@ describe('App', () => {
       const id = todosDummy[0]._id;
       request(app)
         .delete(`/todos/${id}`)
-        .expect(404)
+        .expect(401)
         .end(done);
     });
   });
@@ -256,7 +256,7 @@ describe('App', () => {
       const id = todosDummy[0]._id;
       request(app)
         .patch(`/todos/${id}`)
-        .expect(404)
+        .expect(401)
         .end(done);      
     });
   });
@@ -421,7 +421,7 @@ describe('App', () => {
       .set('x-auth', usersDummy[0].tokens[0].token)
       .expect(200)
       .expect(res => {
-        expect(res).toBe(null);
+        expect(res.body).toEqual({});
         expect(res.headers['x-auth']).toBeFalsy();
       })
       .end(async (err, res) => {
@@ -429,7 +429,7 @@ describe('App', () => {
           return done(err);
         }
         try {
-          const user = await User.findOne({
+          const user = await User.find({
             tokens: { token: usersDummy[0].tokens[0].token}
           });
           expect(user.length).toBe(0);
@@ -440,12 +440,12 @@ describe('App', () => {
       })
     });
 
-    it('should return 400 deleting with invalid token', done => {
+    it('should return 400 deleting token with invalid token', done => {
       const tokenDummy = 'nsdd6sbsdjsdodody';
       request(app)
       .delete('/users/me/token')
       .set('x-auth', tokenDummy)
-      .expect(400)
+      .expect(401)
       .end(done);
     });
   });

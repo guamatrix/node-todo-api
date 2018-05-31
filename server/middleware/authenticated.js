@@ -11,7 +11,7 @@ const authenticated = async (req, res, next) => {
       req.token = token;
       return next();
     }
-    res.status(403).send(new Errors(user));
+    res.status(403).send(new Errors({ message: 'Forbidden' }));
   } catch (error) {
     res.status(401).send(new Errors(error));      
   }
