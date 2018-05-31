@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const { Todo } = require('../../models/todo');
 const { User } = require('../../models/user');
+const keys = require('../../config/keys');
 
 const userIDOne = new ObjectID();
 const userIDTwo = new ObjectID();
@@ -20,7 +21,7 @@ const usersDummy = [
     tokens: [
       {
         access: 'auth',
-        token: jwt.sign({ _id: userIDOne, access: 'auth' }, 'abc123').toString()
+        token: jwt.sign({ _id: userIDOne, access: 'auth' }, keys.JWT_SECRET).toString()
       }
     ]
   },
