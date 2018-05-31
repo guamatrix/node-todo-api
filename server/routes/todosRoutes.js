@@ -6,9 +6,8 @@ const Errors = require('../models/errors');
 const { objectIDverify } = require('../middleware/objectID');
 const { authenticated } = require('../middleware/authenticated');
 
-
 module.exports = app => {
-  app.post('/todos', authenticated,  async (req, res) => {
+  app.post('/todos', authenticated, async (req, res) => {
     try {
       const todo = new Todo({
         text: req.body.text,
@@ -16,7 +15,7 @@ module.exports = app => {
         completedAt: req.body.completedAt || undefined,
         _creator: req.user._id
       });
-    
+
       const result = await todo.save();
       res.status(200).send(result);
     } catch (error) {
@@ -67,18 +66,20 @@ module.exports = app => {
     const { id } = req.params;
 
     const body = _.pick(req.body, ['text', 'completed']);
-    if(_.isBoolean(body.completed) && body.completed) {
+    if (_.isBoolean(body.completed) && body.completed) {
       body['completedAt'] = new Date().getTime();
     } else {
       body.completed = false;
       body['completedAt'] = null;
     }
     try {
-      const todoUpdated = await Todo.findOneAndUpdate({ 
-        _id: id, _creator: req.user._id
-       },
-       { $set: body },
-       { new: true }
+      const todoUpdated = await Todo.findOneAndUpdate(
+        {
+          _id: id,
+          _creator: req.user._id
+        },
+        { $set: body },
+        { new: true }
       );
       if (!todoUpdated) {
         return res.status(404).send();
@@ -88,4 +89,4 @@ module.exports = app => {
       res.status(400).send(new Error(error));
     }
   });
-}
+};

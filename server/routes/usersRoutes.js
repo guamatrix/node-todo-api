@@ -12,11 +12,14 @@ module.exports = app => {
       const response = await user.save();
       const token = await user.generateAuthToken();
       if (response && token) {
-        return res.status(200).header('x-auth', token).send({ user: response });
+        return res
+          .status(200)
+          .header('x-auth', token)
+          .send({ user: response });
       }
       res.status(400).send(new Errors(response));
     } catch (error) {
-      res.status(400).send(new Errors(error));    
+      res.status(400).send(new Errors(error));
     }
   });
 
@@ -30,10 +33,13 @@ module.exports = app => {
       // @ts-ignore
       const user = await User.findByEmailAndPassword(body);
       const token = await user.generateAuthToken();
-  
+
       if (user && token) {
-        return res.status(200).header('x-auth', token).send({ user });
-      }  
+        return res
+          .status(200)
+          .header('x-auth', token)
+          .send({ user });
+      }
       res.status(400).send(new Errors(user));
     } catch (error) {
       res.status(400).send(new Errors(error));
@@ -48,4 +54,4 @@ module.exports = app => {
       res.status(400).send(new Errors(error));
     }
   });
-}
+};

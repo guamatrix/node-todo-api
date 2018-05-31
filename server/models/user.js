@@ -24,16 +24,18 @@ const UserSchema = new Schema({
     require: true,
     minlength: 6
   },
-  tokens: [{
-    access: {
-      type: String,
-      require: true
-    },
-    token: {
-      type: String,
-      require: true
+  tokens: [
+    {
+      access: {
+        type: String,
+        require: true
+      },
+      token: {
+        type: String,
+        require: true
+      }
     }
-  }]
+  ]
 });
 
 UserSchema.methods.toJSON = function() {
@@ -58,7 +60,7 @@ UserSchema.methods.removeToken = function(token) {
       tokens: { token }
     }
   });
-}
+};
 
 UserSchema.statics.findByToken = function(token) {
   const User = this;
@@ -69,10 +71,10 @@ UserSchema.statics.findByToken = function(token) {
   } catch (error) {
     return Promise.reject({ message: 'Invalid token' });
   }
-  
+
   return User.findOne({
     // @ts-ignore
-    '_id': decoded._id,
+    _id: decoded._id,
     'tokens.token': token,
     'tokens.access': 'auth'
   });
@@ -81,7 +83,7 @@ UserSchema.statics.findByToken = function(token) {
 UserSchema.statics.findByEmailAndPassword = async function({ email, password }) {
   const User = this;
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email });
     if (!user) {
       return Promise.reject({ message: 'User not exist' });
     }
@@ -91,7 +93,7 @@ UserSchema.statics.findByEmailAndPassword = async function({ email, password }) 
     }
     return user;
   } catch (error) {
-    return Promise.reject(error);  
+    return Promise.reject(error);
   }
 };
 

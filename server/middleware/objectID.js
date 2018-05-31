@@ -7,6 +7,6 @@ const objectIDverify = (req, res, next) => {
     return res.status(404).send();
   }
   next();
-}
+};
 
 module.exports = { objectIDverify };

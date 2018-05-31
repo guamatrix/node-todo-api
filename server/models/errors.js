@@ -1,6 +1,6 @@
 class Errors {
   constructor(error) {
-   this.errors = error.message ? error.message : error.stack; 
+    this.errors = error.message ? error.message : error.stack;
   }
 }
 

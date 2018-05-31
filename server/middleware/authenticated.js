@@ -13,8 +13,8 @@ const authenticated = async (req, res, next) => {
     }
     res.status(403).send(new Errors({ message: 'Forbidden' }));
   } catch (error) {
-    res.status(401).send(new Errors(error));      
+    res.status(401).send(new Errors(error));
   }
-}
+};
 
 module.exports = { authenticated };
