@@ -152,6 +152,26 @@ describe('App', () => {
         });
     });
 
+    it('should not delete a todo not created by user', done => {
+      const id = todosDummy[2]._id.toHexString();
+      request(app)
+        .delete(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
+        .expect(404)
+        .end(async (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          try {
+            const todos = await Todo.findById(id);
+            expect(todos).toBeTruthy();
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });      
+    })
+
     it('should return 404 with invalid id', done => {
       const id = '1asdsa45';
       request(app)
@@ -170,7 +190,7 @@ describe('App', () => {
         .end(done);
     });
 
-    it('should faild when not set header token', done => {
+    it('should fail when not set header token', done => {
       const id = todosDummy[0]._id;
       request(app)
         .delete(`/todos/${id}`)
@@ -259,6 +279,31 @@ describe('App', () => {
         .expect(401)
         .end(done);      
     });
+
+    it('should not update a todo not created by user', done => {
+      const id = todosDummy[2]._id.toHexString();
+      const body = { completed: true };
+      request(app)
+        .patch(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
+        .send(body)
+        .expect(404)
+        .expect(res => {
+          expect(res.body).toEqual({});
+        })
+        .end(async (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          try {
+            const todoUpdated = await Todo.findById(id);
+            expect(todoUpdated.completed).toBe(false);
+            done();
+          } catch (error) {
+            done(error);
+          }
+        })
+  })
   });
 
   describe('GET /users/me', () => {
