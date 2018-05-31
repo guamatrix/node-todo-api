@@ -16,3 +16,4 @@ console.log(token);
 
 const decoded = jwt.verify(token, '123abc');
 console.log(decoded);
+

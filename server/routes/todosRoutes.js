@@ -1,4 +1,3 @@
-const { ObjectID } = require('mongodb');
 const _ = require('lodash');
 
 const { Todo } = require('../models/todo');
@@ -30,7 +29,7 @@ module.exports = app => {
       });
       res.status(200).send({ todos });
     } catch (error) {
-      res.status(400).send(new Error(error));
+      res.status(400).send(new Errors(error));
     }
   });
 
@@ -44,7 +43,7 @@ module.exports = app => {
       }
       res.status(404).send({});
     } catch (error) {
-      res.status(400).send(new Error(error));
+      res.status(400).send(new Errors(error));
     }
   });
 
@@ -58,7 +57,7 @@ module.exports = app => {
       }
       res.status(404).send();
     } catch (error) {
-      res.status(400).send(new Error(error));
+      res.status(400).send(new Errors(error));
     }
   });
 
@@ -86,7 +85,7 @@ module.exports = app => {
       }
       res.status(200).send({ todo: todoUpdated });
     } catch (error) {
-      res.status(400).send(new Error(error));
+      res.status(400).send(new Errors(error));
     }
   });
 };

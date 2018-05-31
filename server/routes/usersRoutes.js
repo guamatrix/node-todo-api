@@ -30,6 +30,7 @@ module.exports = app => {
   app.post('/users/login', async (req, res) => {
     const body = _.pick(req.body, ['email', 'password']);
     try {
+      
       // @ts-ignore
       const user = await User.findByEmailAndPassword(body);
       const token = await user.generateAuthToken();
@@ -48,7 +49,7 @@ module.exports = app => {
 
   app.delete('/users/me/token', authenticated, async (req, res) => {
     try {
-      const resp = await req.user.removeToken(req.token);
+      await req.user.removeToken(req.token);
       res.status(200).send();
     } catch (error) {
       res.status(400).send(new Errors(error));
