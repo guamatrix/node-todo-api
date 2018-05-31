@@ -1,6 +1,5 @@
 #node modules
-node_modules
+node_modules/
 
-#enviroment
-server/config/dev.js
-test.js
+#enviroment keys
+server/config/enviroments
