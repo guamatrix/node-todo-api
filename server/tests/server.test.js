@@ -18,6 +18,7 @@ describe('App', () => {
 
       request(app)
         .post('/todos')
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .send({ text })
         .expect(200)
         .expect(res => {
@@ -41,6 +42,7 @@ describe('App', () => {
     it('should not create todo with invalid data', done => {
       request(app)
         .post('/todos')
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .send({})
         .expect(400)
         .end(async (err, res) => {
@@ -56,16 +58,32 @@ describe('App', () => {
           }
         });
     });
+
+    it('should fail when set not header token', done => {
+      request(app)
+        .post('/todos')
+        .send({ text: 'test' })
+        .expect(400)
+        .end(done);
+    });    
   });
 
   describe('GET /todos', () => {
-    it('should get all todos', done => {
+    it('should get todos', done => {
       request(app)
         .get('/todos')
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .expect(200)
         .expect(res => {
           expect(res.body.todos.length).toBe(3);
         })
+        .end(done);
+    });
+
+    it('should fail when not set header token', done => {
+      request(app)
+        .get('/todos')
+        .expect(400)
         .end(done);
     });
   });
@@ -75,6 +93,7 @@ describe('App', () => {
       const id = todosDummy[1]._id.toHexString();
       request(app)
         .get(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .expect(200)
         .expect(res => {
           expect(res.body.todo._id).toBe(id);
@@ -86,12 +105,22 @@ describe('App', () => {
       const id = '1asdsa45';
       request(app)
         .get(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .expect(404)
         .end(done);
     });
 
     it('should return 404 if id not exist', done => {
       const id = new ObjectID();
+      request(app)
+        .get(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
+        .expect(404)
+        .end(done);
+    });
+
+    it('should fail when not set header token', done => {
+      const id = todosDummy[0]._id;
       request(app)
         .get(`/todos/${id}`)
         .expect(404)
@@ -104,6 +133,7 @@ describe('App', () => {
       const id = todosDummy[0]._id.toHexString();
       request(app)
         .delete(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .expect(200)
         .expect(res => {
           expect(res.body.todo._id).toBe(id);
@@ -126,12 +156,22 @@ describe('App', () => {
       const id = '1asdsa45';
       request(app)
         .delete(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .expect(404)
         .end(done);
     });
 
     it('should return 404 if id not exist', done => {
       const id = new ObjectID();
+      request(app)
+        .delete(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
+        .expect(404)
+        .end(done);
+    });
+
+    it('should faild when not set header token', done => {
+      const id = todosDummy[0]._id;
       request(app)
         .delete(`/todos/${id}`)
         .expect(404)
@@ -141,10 +181,11 @@ describe('App', () => {
 
   describe('PATCH /todo/:id', () => {
     it('should update todo completed', done => {
-      const id = todosDummy[1]._id.toHexString();
+      const id = todosDummy[0]._id.toHexString();
       const body = { text: 'something', completed: true };
       request(app)
         .patch(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .send(body)
         .expect(200)
         .expect((res) => {
@@ -172,6 +213,7 @@ describe('App', () => {
       const body = { completed: false };
       request(app)
         .patch(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .send(body)
         .expect(200)
         .expect(res => {
@@ -196,12 +238,22 @@ describe('App', () => {
       const id = '1asdsa45';
       request(app)
         .patch(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
         .expect(404)
         .end(done);      
     });
 
     it('should return 404 when try to update todo that not exist', done => {
       const id = new ObjectID();
+      request(app)
+        .patch(`/todos/${id}`)
+        .set('x-auth', usersDummy[0].tokens[0].token)        
+        .expect(404)
+        .end(done);      
+    });
+
+    it('should fail when not set header token', done => {
+      const id = todosDummy[0]._id;
       request(app)
         .patch(`/todos/${id}`)
         .expect(404)
