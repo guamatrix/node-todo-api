@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const validations = require('../utils/validations');
 
 const { User } = require('../models/user');
 const Errors = require('../models/errors');
@@ -42,6 +43,23 @@ module.exports = app => {
           .send({ user });
       }
       res.status(400).send(new Errors(user));
+    } catch (error) {
+      res.status(400).send(new Errors(error));
+    }
+  });
+
+  app.post('/users/me/change-password', authenticated, async (req, res) => {
+    const bodyRequired = ['oldPassword', 'newPassword', 'confirmPassword'];
+    const body = _.pick(req.body, bodyRequired );
+    const requiredArray = validations.bodyRequired(bodyRequired, body);
+    
+    if (requiredArray.hasError){
+      return res.status(400).send({ errors: requiredArray.error });
+    }
+
+    try {
+      const user = await req.user.changeCredentials(body);
+      res.status(200).send();
     } catch (error) {
       res.status(400).send(new Errors(error));
     }

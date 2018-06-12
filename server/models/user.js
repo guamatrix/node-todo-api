@@ -53,6 +53,26 @@ UserSchema.methods.generateAuthToken = function() {
   return user.save().then(() => token);
 };
 
+UserSchema.methods.changeCredentials = async function({ oldPassword, newPassword, confirmPassword }) {
+  const user = this;
+  if (newPassword === confirmPassword && oldPassword !== newPassword) {
+    try {
+      const isValid = await bcrypt.compare(oldPassword, user.password);
+      if (!isValid) {
+        return Promise.reject({ message: 'Invalid credential' });
+      }
+      user.password = newPassword;
+      await user.save();
+      return user;
+    } catch (error) {
+      return Promise.reject({ message: 'Current password invalid' });
+    }
+  } else if (newPassword === oldPassword) {
+    return Promise.reject({ message: 'New credential cant be equal than old' });  
+  }
+  return Promise.reject({ message: 'New credentials dont match' });
+};
+
 UserSchema.methods.removeToken = function(token) {
   const user = this;
   return user.update({
