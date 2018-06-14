@@ -24,6 +24,18 @@ const UserSchema = new Schema({
     require: true,
     minlength: 6
   },
+  firstName: {
+    type: String,
+    default: null
+  },
+  lastName: {
+    type: String,
+    default: null
+  },
+  birthDay: {
+    type: Date,
+    default: null
+  },
   tokens: [
     {
       access: {
@@ -41,7 +53,7 @@ const UserSchema = new Schema({
 UserSchema.methods.toJSON = function() {
   const user = this;
   const userObject = user.toObject();
-  return _.pick(userObject, ['_id', 'email']);
+  return _.pick(userObject, ['_id', 'email', 'firstName', 'lastName', 'birthDay']);
 };
 
 UserSchema.methods.generateAuthToken = function() {

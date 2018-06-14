@@ -48,7 +48,7 @@ module.exports = app => {
     }
   });
 
-  app.post('/users/me/change-password', authenticated, async (req, res) => {
+  app.patch('/users/me/change-password', authenticated, async (req, res) => {
     const bodyRequired = ['oldPassword', 'newPassword', 'confirmPassword'];
     const body = _.pick(req.body, bodyRequired );
     const requiredArray = validations.bodyRequired(bodyRequired, body);
@@ -60,6 +60,18 @@ module.exports = app => {
     try {
       const user = await req.user.changeCredentials(body);
       res.status(200).send();
+    } catch (error) {
+      res.status(400).send(new Errors(error));
+    }
+  });
+
+  app.patch('/users/me', authenticated, async (req, res) => {
+    try {
+      const bodyRequired = ['firstName', 'lastName', 'birthDay'];
+      const body = _.omitBy(_.pick(req.body, bodyRequired), _.isNull);
+      Object.keys(body).forEach(key => req.user[key] = body[key]);
+      await req.user.save();
+      res.status(200).send(req.user);       
     } catch (error) {
       res.status(400).send(new Errors(error));
     }
